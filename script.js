@@ -1,155 +1,515 @@
-//! Strings guardados como variables (para que quede mas legible) y variables numericas
-//? (con arrays seria mil veces mas legible y comodo xd)
 
-const invalidOption = "Por favor, ingrese un número de opción válido"
-const invalidInput = "Por favor, ingrese un número válido"
+const invalidOption = "Por favor, ingrese un numero de opcion valido";
+const invalidInputType = "Por favor, ingrese solamente numeros";
+const invalidInputMin = "Por favor, ingrese un numero mas grande";
+const invalidInputMax = "Por favor, ingrese un numero mas pequeño";
 
-const precioProducto1Unidad = 150;
-const stringProducto1Unidad = `1 - Sensor de humedad y temperatura de suelo SoilScan L3 (aprox. 9u por hectárea) --> ${precioProducto1Unidad}USD`;
-
-const precioProducto2Unidad = 120;
-const stringProducto2Unidad = `2 - Pulverizador selectivo con IA SmartWeeds (1u cada 5m de pulverizadora) --> ${precioProducto2Unidad}USD`;
-
-const precioProducto3Unidad = 250;
-const stringProducto3Unidad = `3 - Equipos de seguimiento de cultivo AgrObserve (aprox. 4u por hectárea) --> ${precioProducto3Unidad}USD`;
-
-const stringListaProductosUnidad = stringProducto1Unidad + "\n" + stringProducto2Unidad + "\n" + stringProducto3Unidad;
-
-const precioProducto1Mayorista = 120;
-const stringProducto1Mayorista = `1 - Sensores de humedad y temperatura de suelo SoilScan L3 x 18u+   --> ${precioProducto1Mayorista}USD`;
-
-const precioProducto2Mayorista = 95;
-const stringProducto2Mayorista = `2 - Pulverizador selectivo con IA SmartWeeds x 12u+ --> ${precioProducto2Mayorista}USD`;
-
-const precioProducto3Mayorista = 210;
-const stringProducto3Mayorista = `3 - Equipos de seguimiento de cultivo AgrObserve x 8u+ --> ${precioProducto3Mayorista}USD`;
-
-const stringComprasMayorista = "Equipando su campo con la gama completa de productos de RemoteAgro por mayor, recibe un 15% de descuento"
-
-const stringListaProductosMayorista = stringProducto1Mayorista + "\n" + stringProducto2Mayorista + "\n" + stringProducto3Mayorista + "\n" + stringComprasMayorista;
-
-
-
-const stringPromptHectareas = "Ingrese la cantidad de hectáreas de su campo: ";
-const stringPromptCantPulv = "Ingrese la cantidad de pulverizadoras que utiliza: ";
-const stringPromptAnchoPulv = "Ingrese el ancho en metros de sus pulverizadoras: ";
-
-// Porcentaje de descuento aplicado al presupuesto total por comprar todas las lineas de productos
-const descuentoCompraCompleta = 10;
-
-//! Funciones que muestran los menus a los que se puede acceder desde el principal
-
-// Menu de precio de productos por unidad
-function menuPreciosUnidad() {
-    let submenuEnable = true;
-    while (submenuEnable) {
-        let menuOption = parseInt(prompt(stringListaProductosUnidad + "\n\n1. Ver precios al por mayor \n2. Salir"));
-        if (menuOption == 1) {
-            submenuEnable = menuPreciosMayorista();
-        }
-        else if (menuOption == 2) {
-            submenuEnable = false;
-        }
-        else {
-            alert(invalidOption);
-        }
+function mostrarObjeto(objeto) {
+    let print = [];
+    for (let propiedad in objeto) {
+        print.push(`${formatearString(propiedad)}: ${objeto[propiedad]}\n`);
     }
+    alert(print.join(''));
 }
 
-// Menu de precio de productos por mayor
-function menuPreciosMayorista() {
-    // Menu sin submenus --> no tiene loop y devuelve un valor al menu que lo invocó
-    let menuOption = parseInt(prompt(stringListaProductosMayorista + "\n\n1. Volver a lista por unidad \n2. Salir"));
-    if (menuOption == 1) {
-        return true;
-    }
-    else if (menuOption == 2) {
-        return false;
-    }
-    else {
-        alert(invalidOption);
-    }
+function randomNumber(min, max) {
+    let difference = max - min;
+    return Math.round((min + Math.random() * difference) * 10) / 10;
 }
 
 // Pide al usuario que ingrese un numero positivo
-function numericPromptCheck(promptString) {
-    let input = parseInt(prompt(promptString));
-    while (isNaN(input) || input < 0) {
-        alert(invalidInput);
+function numericPromptCheck(promptString, min = 0, max = Infinity) {
+    while (true) {
         input = parseInt(prompt(promptString));
+        if (isNaN(input)) {
+            alert(invalidInputType);
+        }
+        else if (input < min) {
+            alert(invalidInputMin);
+        }
+        else if (input > max) {
+            alert(invalidInputMax);
+        }
+        else {
+            break;
+        }
     }
     return input;
 }
 
-// Calculadora de presupuestos
-function calculadoraPresupuesto() {
-    let cantidadHectareas = numericPromptCheck(stringPromptHectareas);
-    let cantidadPulverizadoras = numericPromptCheck(stringPromptCantPulv);
-    let anchoPulverizadoras = numericPromptCheck(stringPromptAnchoPulv);
-
-    // Cuenta los productos que se requieren al por mayor
-    let cantidadPorMayor = 0;
-
-    let presupuestoProducto1;
-    let cantidadProducto1 = cantidadHectareas * 9;
-    if (cantidadProducto1 >= 18) {
-        presupuestoProducto1 = cantidadProducto1 * precioProducto1Mayorista;
-        cantidadPorMayor++;
+class hectareaCultivo {
+    constructor(id, cultivo, humedad, temperatura, progreso) {
+        this.id = id;
+        this.cultivo = cultivo;
+        this.humedad = humedad;
+        this.temperatura = temperatura;
+        this.progreso = progreso;
     }
-    else {
-        presupuestoProducto1 = cantidadProducto1 * precioProducto1Unidad;
-    }
-
-    let presupuestoProducto2;
-    let cantidadProducto2 = parseInt(cantidadPulverizadoras * anchoPulverizadoras / 5);
-    if (cantidadProducto2 >= 12) {
-        presupuestoProducto2 = cantidadProducto2 * precioProducto2Mayorista;
-        cantidadPorMayor++;
-    }
-    else {
-        presupuestoProducto2 = cantidadProducto2 * precioProducto2Unidad;
-    }
-
-    let presupuestoProducto3;
-    let cantidadProducto3 = cantidadHectareas * 4;
-    if (cantidadProducto3 >= 8) {
-        presupuestoProducto3 = cantidadProducto3 * precioProducto3Mayorista;
-        cantidadPorMayor++;
-    }
-    else {
-        presupuestoProducto3 = cantidadProducto3 * precioProducto3Unidad;
-    }
-
-    // Presupuesto total (con un 15% de descuento si se compran productos de todas las lineas al por mayor)
-    let presupuestoTotal = (presupuestoProducto1 + presupuestoProducto2 + presupuestoProducto3);
-    let stringDescuentoAplicado = ""
-    if (cantidadPorMayor == 3) {
-        presupuestoTotal = parseInt(presupuestoTotal* (100 - descuentoCompraCompleta) / 100);
-        stringDescuentoAplicado = `(Descuento del ${descuentoCompraCompleta}% aplicado)`
-    }
-
-    alert(`Usted precisa para su campo de: \n- ${cantidadProducto1} Sensores SoilScan L3 --> ${presupuestoProducto1}USD \n- ${cantidadProducto2} Pulverizadores SmartWeeds --> ${presupuestoProducto2}USD \n- ${cantidadProducto3} Equipos AgrObserve --> ${presupuestoProducto3}USD \n------------------------ \n\nPresupuesto total --> ${presupuestoTotal}USD ` + stringDescuentoAplicado);
 }
 
-// Aca empieza el programa
+function generarProgreso(progresoGeneral) {
+    switch (progresoGeneral) {
+        case 1:
+            return randomNumber(0, 5);
+        case 2:
+            return randomNumber(15, 25);
+        case 3:
+            return randomNumber(40, 50);
+        case 4:
+            return randomNumber(60, 75);
+        case 5:
+            return randomNumber(85, 95);
+    }
+}
 
-// Variable booleana que habilita el menu 
+function meterMayuscula(string) {
+    return string[0].toUpperCase().concat(string.slice([1]));
+}
+
+function formatearString(string) {
+    return meterMayuscula(string.toLocaleLowerCase());
+}
+
+const strPromptHumedad = `Ingrese un estado de humedad inicial:
+1. Seco (0-20%)
+2. Normal (20-40%)
+3. Humedo (40-60%)
+4. Saturado (60-80%+)
+`
+
+function promptHumedad() {
+    while (true) {
+        let menuOption = parseInt(prompt(strPromptHumedad));
+        switch (menuOption) {
+            case 1:
+                return randomNumber(0, 20);
+            case 2:
+                return randomNumber(20, 40);
+            case 3:
+                return randomNumber(40, 60);
+            case 4:
+                return randomNumber(60, 80);
+            default:
+                alert(invalidOption);
+                break;
+        }
+    }
+}
+
+const strPromptTemperatura = `Ingrese un estado de temperatura inicial:
+1. Frio (10-15°C)
+2. Templado (15-20°C)
+3. Caliente (20-25°C)
+`
+
+function promptTemperatura() {
+    while (true) {
+        let menuOption = parseInt(prompt(strPromptTemperatura));
+        switch (menuOption) {
+            case 1:
+                return randomNumber(10, 15);
+            case 2:
+                return randomNumber(15, 20);
+            case 3:
+                return randomNumber(20, 25);
+
+            default:
+                alert(invalidOption);
+                break;
+        }
+    }
+}
+
+const strPromptProgreso = `Ingrese un estado de crecimiento inicial:
+1. Recien sembrado
+2. Menos de un mes de siembra
+3. A medio crecer
+4. Maduro
+5. Cerca de la cosecha
+`
+
+function promptProgreso() {
+    while (true) {
+        let menuOption = parseInt(prompt(strPromptProgreso));
+        switch (menuOption) {
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+                return menuOption;
+            default:
+                alert(invalidOption);
+                break;
+        }
+    }
+}
+
+function compararCelda(celda, celdaFiltro) {
+    for (let propiedad in celdaFiltro) {
+        let valorFiltro = celdaFiltro[`${propiedad}`];
+        if (valorFiltro !== undefined) {
+            let valorPropiedad = celda[`${propiedad}`];
+            if (propiedad == 'cultivo') {
+                if (valorPropiedad !== valorFiltro) {
+                    return false;
+                }
+            }
+            else {
+                let min = valorFiltro[0];
+                let max = valorFiltro[1];
+                if (valorPropiedad < min || valorPropiedad >= max) {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+function filtrarCampo(campo, celdaFiltro) {
+    let campoFiltrado = [];
+    campo.forEach((fila) => {
+        let coincidenciasFila = fila.filter((celda) => compararCelda(celda, celdaFiltro))
+        campoFiltrado = campoFiltrado.concat(coincidenciasFila);
+    });
+    return campoFiltrado;
+}
+
+const strFiltrarHumedad = `Seleccione el grado de humedad a filtrar: 
+1. Seco (0-20%)
+2. Normal (20-40%)
+3. Humedo (40-60%)
+4. Saturado (60-80%+)
+`
+
+function menuFiltrarHumedad() {
+    let submenuEnable = true;
+    while (submenuEnable) {
+        let menuOption = parseInt(prompt(strFiltrarHumedad));
+        switch (menuOption) {
+            case 1:
+                return [0, 20];
+            case 2:
+                return [20, 40];
+            case 3:
+                return [40, 60];
+            case 4:
+                return [60, 100];
+            default:
+                alert(invalidOption);
+
+        }
+    }
+}
+
+const strFiltrarTemperatura = `Seleccione el nivel de temperatura de suelo a filtrar:
+1. Frio (15°C-)
+2. Templado (15-20°C)
+3. Caliente (20°C+)
+`
+
+function menuFiltrarTemperatura() {
+    let submenuEnable = true;
+    while (submenuEnable) {
+        let menuOption = parseInt(prompt(strFiltrarTemperatura));
+        switch (menuOption) {
+            case 1:
+                return [0, 15];
+            case 2:
+                return [15, 20];
+            case 3:
+                return [20, 100];
+            default:
+                alert(invalidOption);
+                break;
+        }
+    }
+}
+const strFiltrarProgreso = `Seleccione el nivel de progreso a filtrar:
+1. Siembra reciente (0-20%)
+2. Cultivos jovenes (20-40%)
+3. A medio crecer (40-60%)
+4. Cultivos maduros (60-80%)
+5. A punto de cosechar (8-99%)
+6. Listos para cosechar (100%)
+`
+function menuFiltrarProgreso() {
+    let submenuEnable = true;
+    while (submenuEnable) {
+        let menuOption = parseInt(prompt(strFiltrarProgreso));
+        switch (menuOption) {
+            case 1:
+                return [0, 20];
+            case 2:
+                return [20, 40];
+            case 3:
+                return [40, 60];
+            case 4:
+                return [60, 80];
+            case 5:
+                return [80, 100];
+            case 6:
+                return [100, 101];
+            default:
+                alert(invalidOption);
+                break;
+        }
+    }
+}
+
+const strMenuPrimerFiltro = `Ingrese un numero de opcion:
+1. Filtrar por cultivo
+2. Filtrar por humedad de suelo
+3. Filtrar por temperatura
+4. Filtrar por grado de crecimiento
+`
+
+const strMenuFiltrosAdicionales = `Ingrese un numero de opcion:
+1. Filtrar por cultivo
+2. Filtrar por humedad de suelo
+3. Filtrar por temperatura
+4. Filtrar por grado de crecimiento
+5. Generar lista filtrada
+`
+
+function menuFiltrar(campo) {
+    let filtro = {
+        cultivo: undefined,
+        humedad: undefined,
+        temperatura: undefined,
+        progreso: undefined
+    }
+    let submenuEnable = true;
+    let primerFiltro = true;
+    while (submenuEnable) {
+        let menuOption;
+        if (primerFiltro) {
+            menuOption = parseInt(prompt(strMenuPrimerFiltro));
+        }
+        else {
+            menuOption = parseInt(prompt(strMenuFiltrosAdicionales));
+        }
+        switch (menuOption) {
+            case 1:
+                filtro.cultivo = formatearString(prompt("Ingrese el nombre del cultivo: "));
+                primerFiltro = false;
+                break;
+            case 2:
+                filtro.humedad = menuFiltrarHumedad();
+                primerFiltro = false;
+                break;
+            case 3:
+                filtro.temperatura = menuFiltrarTemperatura();
+                primerFiltro = false;
+                break;
+            case 4:
+                filtro.progreso = menuFiltrarProgreso();
+                primerFiltro = false;
+                break;
+            case 5:
+                if (!primerFiltro) {
+                    submenuEnable = false;
+                    break;
+                }
+            default:
+                alert(invalidOption);
+                break;
+        }
+    }
+    return filtrarCampo(campo, filtro);
+}
+
+function mapearCampo(campo, campoFiltrado) {
+    let anchoCampo = campo[0].length;
+    let stringAlert = [];
+    campo.forEach((fila) => {
+        let found;
+        for (let celda of fila) {
+            if (campoFiltrado.includes(celda)) {
+                found = 'X'
+            }
+            else {
+                found = '0'
+            }
+            stringAlert = stringAlert.concat(found)
+        }
+        stringAlert = stringAlert.concat("\n");
+    })
+    stringAlert = stringAlert.concat("\nSe ha generado una vista detallada de las celdas coincidentes en la consola.")
+    console.log(campoFiltrado);
+    alert(stringAlert.join(""));
+}
+
+const strMenuSimulador = `Ingrese un numero de opcion: 
+1. Consultar el estado de una hectarea 
+2. Simular el paso de un día 
+3. Filtrar hectareas 
+4. Consultar promedio 
+5. Finalizar simulacion
+`
+
+function simuladorCampo() {
+    let campo = [];
+    let anchoCampo = numericPromptCheck("Ingrese el ancho de su campo en hectáreas: ");
+    let humedadCampo = promptHumedad();
+    let temperaturaCampo = promptTemperatura();
+    let cantidadCultivos = numericPromptCheck("Ingrese la cantidad de cultivos de su campo: ");
+
+    for (let i = 0; i < cantidadCultivos; i++) {
+        let cultivoParcela = formatearString(prompt("Ingrese el cultivo de la parcela: "));
+        let largoParcela = numericPromptCheck("Ingrese el largo en hectareas de la parcela: ")
+        let progresoParcela = promptProgreso();
+        for (let nFila = 0; nFila < largoParcela; nFila++) {
+
+            let fila = [];
+
+            for (let nColumna = 0; nColumna < anchoCampo; nColumna++) {
+                let id = `${nFila};${nColumna}`;
+                let celda = new hectareaCultivo(id, cultivoParcela, humedadCampo, temperaturaCampo, generarProgreso(progresoParcela));
+                fila.push(celda);
+            }
+
+            campo.push(fila);
+
+        }
+    }
+
+    console.log(campo);
+
+    let subMenuEnable = true;
+
+    //TODO: q el paso del dia tenga un evento random
+
+    while (subMenuEnable) {
+        let menuOption = parseInt(prompt(strMenuSimulador))
+        switch (menuOption) {
+            case 1:
+                consultarCelda(campo);
+                break;
+            case 3:
+                mapearCampo(campo, menuFiltrar(campo));
+                break;
+            case 4:
+                menuPromedio(campo);
+                break;
+            case 5:
+                subMenuEnable = false;
+                break;
+            default:
+                alert(invalidOption);
+                break;
+        }
+    }
+}
+const strMenuPromedio = `Ingrese el parámetro a promediar:
+1. Temperatura
+2. Humedad
+3. Nivel de crecimiento
+`
+const strMenuPromedioFiltro = `¿Desea filtrar las celdas a promediar?
+1. Si
+2. No
+`
+function menuPromedio(campo) {
+    let submenuEnable = true;
+    let propiedad;
+    while (submenuEnable) {
+        let menuOption = parseInt(prompt(strMenuPromedio));
+        switch(menuOption) {
+            case 1:
+                propiedad = 'temperatura';
+                submenuEnable = false;
+                break;
+            case 2:
+                propiedad = 'humedad';
+                submenuEnable = false;
+                break;
+            case 3:
+                propiedad = 'progreso';
+                submenuEnable = false;
+                break;
+            default:
+                alert(invalidOption);
+                break;
+        }
+    }
+    submenuEnable = true;
+    let filtrarCampo = false;
+    while (submenuEnable) {
+        let menuOption = parseInt(prompt(strMenuPromedioFiltro));
+        switch(menuOption) {
+            case 1:
+                filtrarCampo = true;
+                campo = menuFiltrar(campo);
+                submenuEnable = false;
+                break;
+            case 2:
+                let filasFusionadas = [];
+                for (let fila of campo) {
+                    filasFusionadas = filasFusionadas.concat(fila);
+                }
+                campo = filasFusionadas;
+                submenuEnable = false;
+                break;
+            default:
+                alert(invalidOption);
+                break;
+        }
+    }
+    if ((filtrarCampo == true) && campo.length == 0) {
+        alert("No hay celdas coincidentes con el filtro");
+    }
+    else {
+        let sumaTotal = campo.reduce(
+            (acumulador, celda) => acumulador + celda[`${propiedad}`],
+            0
+        );
+        let promedio = sumaTotal / campo.length;
+        alert(`El promedio de ${propiedad} es ${promedio}`);
+    }
+}
+
+function consultarCelda(campo) {
+    let found;
+    let idPrompt = prompt("Ingrese el ID de la celda (fila;columna): ");
+    let largoCampo = campo.length;
+    for (let fila = 0; fila < largoCampo; fila++) {
+        index = campo[fila].findIndex((celda) => celda.id == idPrompt)
+        if (index != -1) {
+            found = campo[fila][index];
+            break;
+        }
+    }
+    if (index == -1) {
+        alert("No existe celda con el ID ingresado");
+    }
+    else {
+        mostrarObjeto(found);
+        console.log(found);
+    }
+}
+
+
+// Programa principal
+
+alert("¡Bienvenido al simulador de campo de RemoteAgro! \n\nCon esta herramienta, podra simular los efectos del clima en el estado de sus cultivos.");
+
 let menuEnable = true;
 
-alert("¡Bienvenido a RemoteAgro! La solución para controlar su campo desde donde desee");
+const strMenuPrincipal = `Por favor, seleccione un numero de opcion: 
+1. Generar un campo y comenzar simulacion 
+2. Salir
+`
 
-// Loop del menu principal
 while (menuEnable) {
-    // Pide al usuario ingresar un numero de opcion del menu
-    let menuOption = parseInt(prompt("Seleccione un número de opción: \n1. Ver productos y precios \n2. Calcule un presupuesto para su campo \n3. Salir"));
+
+    let menuOption = parseInt(prompt(strMenuPrincipal))
     switch (menuOption) {
         case 1:
-            menuPreciosUnidad();
+            simuladorCampo();
             break;
         case 2:
-            calculadoraPresupuesto();
-            break;
-        case 3:
             alert("¡Hasta luego!");
             menuEnable = false;
             break;
